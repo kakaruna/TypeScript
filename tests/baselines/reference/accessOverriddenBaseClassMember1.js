@@ -19,8 +19,7 @@ class ColoredPoint extends Point {
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Point = (function () {
     function Point(x, y) {
@@ -31,7 +30,7 @@ var Point = (function () {
         return "x=" + this.x + " y=" + this.y;
     };
     return Point;
-})();
+}());
 var ColoredPoint = (function (_super) {
     __extends(ColoredPoint, _super);
     function ColoredPoint(x, y, color) {
@@ -42,4 +41,4 @@ var ColoredPoint = (function (_super) {
         return _super.prototype.toString.call(this) + " color=" + this.color;
     };
     return ColoredPoint;
-})(Point);
+}(Point));

@@ -19,8 +19,7 @@ class C extends Base {
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Base = (function () {
     function Base() {
@@ -29,7 +28,7 @@ var Base = (function () {
         return 0;
     };
     return Base;
-})();
+}());
 var C = (function (_super) {
     __extends(C, _super);
     function C() {
@@ -39,12 +38,12 @@ var C = (function (_super) {
         var _this = this;
         (function () {
             var obj = (_a = {},
-                _a[_super.prototype.bar.call(_this)] = function () { },
-                _a
-            );
+                _a[_super.prototype.bar.call(_this)] = function () { } // needs capture
+            ,
+                _a);
             var _a;
         });
         return 0;
     };
     return C;
-})(Base);
+}(Base));

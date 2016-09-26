@@ -1,0 +1,92 @@
+=== tests/cases/conformance/types/stringLiteral/stringLiteralTypesInUnionTypes04.ts ===
+
+type T = "" | "foo";
+>T : T
+
+let x: T = undefined;
+>x : T
+>T : T
+>undefined : undefined
+
+let y: T = undefined;
+>y : T
+>T : T
+>undefined : undefined
+
+if (x === "") {
+>x === "" : boolean
+>x : T
+>"" : ""
+
+    let a = x;
+>a : string
+>x : ""
+}
+
+if (x !== "") {
+>x !== "" : boolean
+>x : T
+>"" : ""
+
+    let b = x;
+>b : string
+>x : "foo"
+}
+
+if (x == "") {
+>x == "" : boolean
+>x : T
+>"" : ""
+
+    let c = x;
+>c : string
+>x : ""
+}
+
+if (x != "") {
+>x != "" : boolean
+>x : T
+>"" : ""
+
+    let d = x;
+>d : string
+>x : "foo"
+}
+
+if (x) {
+>x : T
+
+    let e = x;
+>e : string
+>x : "foo"
+}
+
+if (!x) {
+>!x : boolean
+>x : T
+
+    let f = x;
+>f : string
+>x : T
+}
+
+if (!!x) {
+>!!x : boolean
+>!x : boolean
+>x : T
+
+    let g = x;
+>g : string
+>x : "foo"
+}
+
+if (!!!x) {
+>!!!x : boolean
+>!!x : boolean
+>!x : boolean
+>x : T
+
+    let h = x;
+>h : string
+>x : T
+}

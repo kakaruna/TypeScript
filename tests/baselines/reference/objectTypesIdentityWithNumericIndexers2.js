@@ -29,7 +29,7 @@ class PB extends B {
 var a: {
     [x: number]: Base;
 }
-var b: { [x: number]: Derived; } = { foo: <Derived>null };
+var b: { [x: number]: Derived; } = { 0: <Derived>null };
 
 function foo1(x: A);
 function foo1(x: A); // error
@@ -130,52 +130,51 @@ function foo16(x: any) { }
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Base = (function () {
     function Base() {
     }
     return Base;
-})();
+}());
 var Derived = (function (_super) {
     __extends(Derived, _super);
     function Derived() {
         _super.apply(this, arguments);
     }
     return Derived;
-})(Base);
+}(Base));
 var A = (function () {
     function A() {
     }
     return A;
-})();
+}());
 var B = (function () {
     function B() {
     }
     return B;
-})();
+}());
 var C = (function () {
     function C() {
     }
     return C;
-})();
+}());
 var PA = (function (_super) {
     __extends(PA, _super);
     function PA() {
         _super.apply(this, arguments);
     }
     return PA;
-})(A);
+}(A));
 var PB = (function (_super) {
     __extends(PB, _super);
     function PB() {
         _super.apply(this, arguments);
     }
     return PB;
-})(B);
+}(B));
 var a;
-var b = { foo: null };
+var b = { 0: null };
 function foo1(x) { }
 function foo1b(x) { }
 function foo1c(x) { }

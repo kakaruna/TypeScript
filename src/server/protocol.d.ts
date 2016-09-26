@@ -1,48 +1,54 @@
-/** 
-  * Declaration module describing the TypeScript Server protocol 
+/**
+  * Declaration module describing the TypeScript Server protocol
   */
-declare module ts.server.protocol {
-    /** 
-      * A TypeScript Server message 
+declare namespace ts.server.protocol {
+    /**
+      * A TypeScript Server message
       */
     export interface Message {
-        /** 
-          * Sequence number of the message 
+        /**
+          * Sequence number of the message
           */
         seq: number;
 
         /**
-          * One of "request", "response", or "event" 
+          * One of "request", "response", or "event"
           */
         type: string;
     }
-    
-    /** 
-      * Client-initiated request message 
+
+    /**
+      * Client-initiated request message
       */
     export interface Request extends Message {
         /**
-          * The command to execute 
+          * The command to execute
           */
         command: string;
 
-        /** 
-          * Object containing arguments for the command 
+        /**
+          * Object containing arguments for the command
           */
         arguments?: any;
     }
 
-    /** 
-      * Server-initiated event message 
+    /**
+      * Request to reload the project structure for all the opened files
+      */
+    export interface ReloadProjectsRequest extends Message {
+    }
+
+    /**
+      * Server-initiated event message
       */
     export interface Event extends Message {
-        /** 
-          * Name of event 
+        /**
+          * Name of event
           */
         event: string;
 
-        /** 
-          * Event-specific information 
+        /**
+          * Event-specific information
           */
         body?: any;
     }
@@ -56,28 +62,28 @@ declare module ts.server.protocol {
           */
         request_seq: number;
 
-        /** 
-          * Outcome of the request. 
+        /**
+          * Outcome of the request.
           */
         success: boolean;
 
-        /** 
+        /**
           * The command requested.
           */
         command: string;
 
-        /** 
-          * Contains error message if success == false. 
+        /**
+          * Contains error message if success === false.
           */
         message?: string;
 
         /**
-          * Contains message body if success == true.
+          * Contains message body if success === true.
           */
         body?: any;
     }
 
-    /** 
+    /**
       * Arguments for FileRequest messages.
       */
     export interface FileRequestArgs {
@@ -85,6 +91,49 @@ declare module ts.server.protocol {
           * The file for the request (absolute pathname required).
           */
         file: string;
+    }
+
+    /**
+      * Arguments for ProjectInfoRequest request.
+      */
+    export interface ProjectInfoRequestArgs extends FileRequestArgs {
+        /**
+          * Indicate if the file name list of the project is needed
+          */
+        needFileNameList: boolean;
+    }
+
+    /**
+      * A request to get the project information of the current file
+      */
+    export interface ProjectInfoRequest extends Request {
+        arguments: ProjectInfoRequestArgs;
+    }
+
+    /**
+      * Response message body for "projectInfo" request
+      */
+    export interface ProjectInfo {
+        /**
+          * For configured project, this is the normalized path of the 'tsconfig.json' file
+          * For inferred project, this is undefined
+          */
+        configFileName: string;
+        /**
+          * The list of normalized file name in the project, including 'lib.d.ts'
+          */
+        fileNames?: string[];
+        /**
+          * Indicates if the project has a active language service instance
+          */
+        languageServiceDisabled?: boolean;
+    }
+
+    /**
+      * Response message for "projectInfo" request
+      */
+    export interface ProjectInfoResponse extends Response {
+        body?: ProjectInfo;
     }
 
     /**
@@ -99,12 +148,12 @@ declare module ts.server.protocol {
       * (file, line, character offset), where line and character offset are 1-based.
       */
     export interface FileLocationRequestArgs extends FileRequestArgs {
-        /** 
+        /**
           * The line number for the request (1-based).
           */
         line: number;
 
-        /** 
+        /**
           * The character offset (on the line) for the request (1-based).
           */
         offset: number;
@@ -115,6 +164,17 @@ declare module ts.server.protocol {
       */
     export interface FileLocationRequest extends FileRequest {
         arguments: FileLocationRequestArgs;
+    }
+
+    /**
+      * Arguments in document highlight request; include: filesToSearch, file,
+      * line, offset.
+      */
+    export interface DocumentHighlightsRequestArgs extends FileLocationRequestArgs {
+        /**
+         * List of files to search for document highlights.
+         */
+        filesToSearch: string[];
     }
 
     /**
@@ -134,6 +194,14 @@ declare module ts.server.protocol {
     }
 
     /**
+      * Go to implementation request; value of command field is
+      * "implementation". Return response giving the file locations that
+      * implement the symbol found in file at location line, col.
+      */
+    export interface ImplementationRequest extends FileLocationRequest {
+    }
+
+    /**
       * Location in source code expressed as (one-based) line and character offset.
       */
     export interface Location {
@@ -144,7 +212,7 @@ declare module ts.server.protocol {
     /**
       * Object found in response messages defining a span of text in source code.
       */
-    export interface TextSpan { 
+    export interface TextSpan {
         /**
           * First character of the definition.
           */
@@ -160,7 +228,7 @@ declare module ts.server.protocol {
       * Object found in response messages defining a span of text in a specific source file.
       */
     export interface FileSpan extends TextSpan {
-        /** 
+        /**
           * File containing text span.
           */
         file: string;
@@ -177,6 +245,13 @@ declare module ts.server.protocol {
       * Definition response message.  Gives text range for definition.
       */
     export interface TypeDefinitionResponse extends Response {
+        body?: FileSpan[];
+    }
+
+    /**
+      * Implementation response message.  Gives text range for implementations.
+      */
+    export interface ImplementationResponse extends Response {
         body?: FileSpan[];
     }
 
@@ -200,6 +275,35 @@ declare module ts.server.protocol {
     }
 
     /**
+      * Get document highlights request; value of command field is
+      * "documentHighlights". Return response giving spans that are relevant
+      * in the file at a given line and column.
+      */
+    export interface DocumentHighlightsRequest extends FileLocationRequest {
+        arguments: DocumentHighlightsRequestArgs;
+    }
+
+    export interface HighlightSpan extends TextSpan {
+        kind: string;
+    }
+
+    export interface DocumentHighlightsItem {
+        /**
+          * File containing highlight spans.
+          */
+        file: string;
+
+        /**
+          * Spans to highlight in file.
+          */
+        highlightSpans: HighlightSpan[];
+    }
+
+    export interface DocumentHighlightsResponse extends Response {
+        body?: DocumentHighlightsItem[];
+    }
+
+    /**
       * Find references request; value of command field is
       * "references". Return response giving the file locations that
       * reference the symbol found in file at location line, col.
@@ -215,14 +319,19 @@ declare module ts.server.protocol {
           */
         lineText: string;
 
-        /** 
+        /**
           * True if reference is a write location, false otherwise.
           */
         isWriteAccess: boolean;
+
+        /**
+         * True if reference is a definition, false otherwise.
+         */
+        isDefinition: boolean;
     }
 
     /**
-      * The body of a "references" response message. 
+      * The body of a "references" response message.
       */
     export interface ReferencesResponseBody {
         /**
@@ -240,7 +349,7 @@ declare module ts.server.protocol {
           */
         symbolStartOffset: number;
 
-        /** 
+        /**
           * The full display name of the symbol.
           */
         symbolDisplayString: string;
@@ -270,7 +379,7 @@ declare module ts.server.protocol {
     }
 
     /**
-      * Information about the item to be renamed. 
+      * Information about the item to be renamed.
       */
     export interface RenameInfo {
         /**
@@ -288,7 +397,7 @@ declare module ts.server.protocol {
           */
         displayName: string;
 
-        /** 
+        /**
           * Full display name of item to be renamed.
           */
         fullDisplayName: string;
@@ -298,7 +407,7 @@ declare module ts.server.protocol {
           */
         kind: string;
 
-        /** 
+        /**
           * Optional modifiers for the kind (such as 'public').
           */
         kindModifiers: string;
@@ -337,77 +446,83 @@ declare module ts.server.protocol {
      * Editor options
      */
     export interface EditorOptions {
-      
+
         /** Number of spaces for each tab. Default value is 4. */
         tabSize?: number;
-        
+
         /** Number of spaces to indent during formatting. Default value is 4. */
         indentSize?: number;
-        
+
+        /** Number of additional spaces to indent during formatting to preserve base indentation (ex. script block indentation). Default value is 0. */
+        baseIndentSize?: number;
+
         /** The new line character to be used. Default value is the OS line delimiter. */
         newLineCharacter?: string;
-        
+
         /** Whether tabs should be converted to spaces. Default value is true. */
-        convertTabsToSpaces?: boolean;        
+        convertTabsToSpaces?: boolean;
     }
-        
+
     /**
      * Format options
      */
     export interface FormatOptions extends EditorOptions {
-      
+
         /** Defines space handling after a comma delimiter. Default value is true. */
         insertSpaceAfterCommaDelimiter?: boolean;
-        
-        /** Defines space handling after a semicolon in a for statemen. Default value is true */
+
+        /** Defines space handling after a semicolon in a for statement. Default value is true */
         insertSpaceAfterSemicolonInForStatements?: boolean;
-        
+
         /** Defines space handling after a binary operator. Default value is true. */
         insertSpaceBeforeAndAfterBinaryOperators?: boolean;
-        
+
         /** Defines space handling after keywords in control flow statement. Default value is true. */
         insertSpaceAfterKeywordsInControlFlowStatements?: boolean;
-        
+
         /** Defines space handling after function keyword for anonymous functions. Default value is false. */
         insertSpaceAfterFunctionKeywordForAnonymousFunctions?: boolean;
-        
+
         /** Defines space handling after opening and before closing non empty parenthesis. Default value is false. */
         insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis?: boolean;
-        
+
+        /** Defines space handling after opening and before closing non empty brackets. Default value is false. */
+        insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets?: boolean;
+
         /** Defines whether an open brace is put onto a new line for functions or not. Default value is false. */
         placeOpenBraceOnNewLineForFunctions?: boolean;
-        
+
         /** Defines whether an open brace is put onto a new line for control blocks or not. Default value is false. */
         placeOpenBraceOnNewLineForControlBlocks?: boolean;
-        
+
         /** Index operator */
-        [key:string] : string | number | boolean;
+        [key: string]: string | number | boolean | undefined;
     }
-  
+
     /**
       * Information found in a configure request.
       */
     export interface ConfigureRequestArguments {
-      
-        /** 
+
+        /**
           * Information about the host, for example 'Emacs 24.4' or
           * 'Sublime Text version 3075'
           */
         hostInfo?: string;
-        
+
         /**
           * If present, tab settings apply only to this file.
           */
         file?: string;
-        
+
         /**
          * The format options to use during formatting and other code editing features.
          */
-        formatOptions?: FormatOptions;        
+        formatOptions?: FormatOptions;
     }
 
     /**
-      *  Configure request; value of command field is "configure".  Specifies 
+      *  Configure request; value of command field is "configure".  Specifies
       *  host information, such as host type, tab size, and indent size.
       */
     export interface ConfigureRequest extends Request {
@@ -425,6 +540,16 @@ declare module ts.server.protocol {
       *  Information found in an "open" request.
       */
     export interface OpenRequestArgs extends FileRequestArgs {
+        /**
+         * Used when a version of the file content is known to be more up to date than the one on disk.
+         * Then the known content will be used upon opening instead of the disk copy
+         */
+        fileContent?: string;
+        /**
+         * Used to specify the script kind of the file explicitly. It could be one of the following:
+         *      "TS", "JS", "TSX", "JSX"
+         */
+        scriptKindName?: "TS" | "JS" | "TSX" | "JSX";
     }
 
     /**
@@ -473,27 +598,27 @@ declare module ts.server.protocol {
           * The symbol's kind (such as 'className' or 'parameterName' or plain 'text').
           */
         kind: string;
-        
+
         /**
           * Optional modifiers for the kind (such as 'public').
           */
         kindModifiers: string;
-        
+
         /**
           * Starting file location of symbol.
           */
         start: Location;
-        
+
         /**
           * One past last character of symbol.
           */
         end: Location;
-        
+
         /**
           * Type and kind of symbol.
           */
         displayString: string;
-        
+
         /**
           * Documentation associated with symbol.
           */
@@ -515,7 +640,7 @@ declare module ts.server.protocol {
           * Last line of range for which to format text in file.
           */
         endLine: number;
-        
+
         /**
           * Character offset on last line of range for which to format text in file.
           */
@@ -531,7 +656,7 @@ declare module ts.server.protocol {
       */
     export interface FormatRequest extends FileLocationRequest {
         arguments: FormatRequestArgs;
-    } 
+    }
 
     /**
       * Object found in response messages defining an editing
@@ -550,7 +675,7 @@ declare module ts.server.protocol {
           * One character past last character of the text span to edit.
           */
         end: Location;
-        
+
         /**
           * Replace the span defined above with this string (may be
           * the empty string).
@@ -635,7 +760,7 @@ declare module ts.server.protocol {
           * Text of an item describing the symbol.
           */
         text: string;
-        
+
         /**
           * The symbol's kind (such as 'className' or 'parameterName' or plain 'text').
           */
@@ -658,11 +783,16 @@ declare module ts.server.protocol {
           * Optional modifiers for the kind (such as 'public').
           */
         kindModifiers: string;
-        /** 
+        /**
          * A string that is used for comparing completion items so that they can be ordered.  This
          * is often the same as the name but may be different in certain circumstances.
          */
         sortText: string;
+        /**
+         * An optional span that indicates the text to be replaced by this completion item. If present,
+         * this span should be used instead of the default one.
+         */
+        replacementSpan?: TextSpan;
     }
 
     /**
@@ -685,7 +815,7 @@ declare module ts.server.protocol {
           * Display parts of the symbol (similar to quick info).
           */
         displayParts: SymbolDisplayPart[];
-        
+
         /**
           * Documentation strings for the symbol.
           */
@@ -701,95 +831,95 @@ declare module ts.server.protocol {
     }
 
     /**
-     * Signature help information for a single parameter    
-     */    
+     * Signature help information for a single parameter
+     */
     export interface SignatureHelpParameter {
-        
+
         /**
          * The parameter's name
-         */        
+         */
         name: string;
-                
+
         /**
           * Documentation of the parameter.
           */
         documentation: SymbolDisplayPart[];
-                
+
         /**
           * Display parts of the parameter.
           */
         displayParts: SymbolDisplayPart[];
-                
+
         /**
-         * Whether the parameter is optional or not.         
-         */        
+         * Whether the parameter is optional or not.
+         */
         isOptional: boolean;
     }
-        
+
     /**
-     * Represents a single signature to show in signature help.    
-     */    
+     * Represents a single signature to show in signature help.
+     */
     export interface SignatureHelpItem {
-      
+
         /**
-         * Whether the signature accepts a variable number of arguments. 
-         */        
+         * Whether the signature accepts a variable number of arguments.
+         */
         isVariadic: boolean;
-        
+
         /**
          * The prefix display parts.
-         */        
+         */
         prefixDisplayParts: SymbolDisplayPart[];
-        
+
         /**
-         * The suffix disaply parts.
-         */        
+         * The suffix display parts.
+         */
         suffixDisplayParts: SymbolDisplayPart[];
-        
+
         /**
          * The separator display parts.
-         */        
+         */
         separatorDisplayParts: SymbolDisplayPart[];
-        
+
         /**
-         * The signature helps items for the parameters. 
-         */        
+         * The signature helps items for the parameters.
+         */
         parameters: SignatureHelpParameter[];
-                
+
         /**
          * The signature's documentation
          */
         documentation: SymbolDisplayPart[];
     }
-    
+
     /**
      * Signature help items found in the response of a signature help request.
      */
     export interface SignatureHelpItems {
-      
+
         /**
-         * The signature help items.    
-         */        
+         * The signature help items.
+         */
         items: SignatureHelpItem[];
-                
+
         /**
-         * The span for which signature help should appear on a signature 
-         */        
+         * The span for which signature help should appear on a signature
+         */
         applicableSpan: TextSpan;
-                
+
         /**
-         * The item selected in the set of available help items. 
-         */        
+         * The item selected in the set of available help items.
+         */
         selectedItemIndex: number;
-                
+
         /**
          * The argument selected in the set of parameters.
-         */        
+         */
         argumentIndex: number;
-        
+
         /**
          * The argument count
-         */        
+         */
         argumentCount: number;
     }
 
@@ -797,12 +927,11 @@ declare module ts.server.protocol {
      * Arguments of a signature help request.
      */
     export interface SignatureHelpRequestArgs extends FileLocationRequestArgs {
-      
     }
-    
+
     /**
       * Signature help request; value of command field is "signatureHelp".
-      * Given a file location (file, line, col), return the signature 
+      * Given a file location (file, line, col), return the signature
       * help.
       */
     export interface SignatureHelpRequest extends FileLocationRequest {
@@ -810,12 +939,63 @@ declare module ts.server.protocol {
     }
 
     /**
-     * Repsonse object for a SignatureHelpRequest.
-     */  
+     * Response object for a SignatureHelpRequest.
+     */
     export interface SignatureHelpResponse extends Response {
         body?: SignatureHelpItems;
     }
-    
+
+    /**
+      * Synchronous request for semantic diagnostics of one file.
+      */
+    export interface SemanticDiagnosticsSyncRequest extends FileRequest {
+    }
+
+    /**
+      * Response object for synchronous sematic diagnostics request.
+      */
+    export interface SemanticDiagnosticsSyncResponse extends Response {
+        body?: Diagnostic[];
+    }
+
+    /**
+      * Synchronous request for syntactic diagnostics of one file.
+      */
+    export interface SyntacticDiagnosticsSyncRequest extends FileRequest {
+    }
+
+    /**
+      * Response object for synchronous syntactic diagnostics request.
+      */
+    export interface SyntacticDiagnosticsSyncResponse extends Response {
+        body?: Diagnostic[];
+    }
+
+    /**
+    * Arguments for GeterrForProject request.
+    */
+    export interface GeterrForProjectRequestArgs {
+        /**
+          * the file requesting project error list
+          */
+        file: string;
+
+        /**
+          * Delay in milliseconds to wait before starting to compute
+          * errors for the files in the file list
+          */
+        delay: number;
+    }
+
+    /**
+      * GeterrForProjectRequest request; value of command field is
+      * "geterrForProject". It works similarly with 'Geterr', only
+      * it request for every file in this project.
+      */
+    export interface GeterrForProjectRequest extends Request {
+        arguments: GeterrForProjectRequestArgs;
+    }
+
     /**
       * Arguments for geterr messages.
       */
@@ -852,15 +1032,15 @@ declare module ts.server.protocol {
       */
     export interface Diagnostic {
         /**
-          * Starting file location at which text appies.
+          * Starting file location at which text applies.
           */
         start: Location;
-        
+
         /**
           * The last file location at which the text applies.
           */
         end: Location;
-        
+
         /**
           * Text of diagnostic message.
           */
@@ -872,21 +1052,47 @@ declare module ts.server.protocol {
           * The file for which diagnostic information is reported.
           */
         file: string;
-      
+
         /**
           * An array of diagnostic information items.
           */
         diagnostics: Diagnostic[];
     }
 
-    /** 
+    /**
       * Event message for "syntaxDiag" and "semanticDiag" event types.
       * These events provide syntactic and semantic errors for a file.
       */
     export interface DiagnosticEvent extends Event {
         body?: DiagnosticEventBody;
     }
- 
+
+    export interface ConfigFileDiagnosticEventBody {
+        /**
+         * The file which trigged the searching and error-checking of the config file
+         */
+        triggerFile: string;
+
+        /**
+         * The name of the found config file.
+         */
+        configFile: string;
+
+        /**
+         * An arry of diagnostic information items for the found config file.
+         */
+        diagnostics: Diagnostic[];
+    }
+
+    /**
+     * Event message for "configFileDiag" event type.
+     * This event provides errors for a found config file.
+     */
+    export interface ConfigFileDiagnosticEvent extends Event {
+        body?: ConfigFileDiagnosticEventBody;
+        event: "configFileDiag";
+    }
+
     /**
       * Arguments for reload request.
       */
@@ -915,7 +1121,7 @@ declare module ts.server.protocol {
     export interface ReloadResponse extends Response {
     }
 
-    /** 
+    /**
       * Arguments for saveto request.
       */
     export interface SavetoRequestArgs extends FileRequestArgs {
@@ -950,6 +1156,11 @@ declare module ts.server.protocol {
           *  Optional limit on the number of items to return.
           */
         maxResultCount?: number;
+        /**
+          * Optional flag to indicate we want results for just the current file
+          * or the entire project.
+          */
+        currentFileOnly?: boolean;
     }
 
     /**
@@ -970,12 +1181,12 @@ declare module ts.server.protocol {
           * The symbol's name.
           */
         name: string;
-       
+
         /**
           * The symbol's kind (such as 'className' or 'parameterName').
           */
         kind: string;
-        
+
         /**
           * exact, substring, or prefix.
           */
@@ -985,39 +1196,39 @@ declare module ts.server.protocol {
           * If this was a case sensitive or insensitive match.
           */
         isCaseSensitive?: boolean;
-        
+
         /**
           * Optional modifiers for the kind (such as 'public').
           */
         kindModifiers?: string;
-        
-        /** 
+
+        /**
           * The file in which the symbol is found.
           */
         file: string;
-        
+
         /**
           * The location within file at which the symbol is found.
           */
         start: Location;
-        
+
         /**
           * One past the last character of the symbol.
           */
         end: Location;
-        
+
         /**
           * Name of symbol's container symbol (if any); for example,
           * the class name if symbol is a class member.
           */
         containerName?: string;
-        
+
         /**
           * Kind of symbol's container symbol (if any).
           */
         containerKind?: string;
     }
-    
+
     /**
       * Navto response message. Body is an array of navto items.  Each
       * item gives a symbol that matched the search term.
@@ -1038,7 +1249,7 @@ declare module ts.server.protocol {
 
     /**
       * Change request message; value of command field is "change".
-      * Update the server's view of the file named by argument 'file'.  
+      * Update the server's view of the file named by argument 'file'.
       * Server does not currently send a response to a change request.
       */
     export interface ChangeRequest extends FileLocationRequest {
@@ -1061,7 +1272,7 @@ declare module ts.server.protocol {
     }
 
     /**
-      * NavBar itesm request; value of command field is "navbar".
+      * NavBar items request; value of command field is "navbar".
       * Return response giving the list of navigation bar entries
       * extracted from the requested file.
       */
@@ -1093,9 +1304,14 @@ declare module ts.server.protocol {
           * Optional children.
           */
         childItems?: NavigationBarItem[];
+
+        /**
+          * Number of levels deep this item should appear.
+          */
+        indent: number;
     }
 
-    export interface NavBarResponse extends Response { 
+    export interface NavBarResponse extends Response {
         body?: NavigationBarItem[];
     }
 }

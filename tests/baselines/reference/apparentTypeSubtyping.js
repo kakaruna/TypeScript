@@ -27,14 +27,13 @@ class Derived2<U extends String> extends Base2 { // error because of the prototy
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Base = (function () {
     function Base() {
     }
     return Base;
-})();
+}());
 // is String (S) a subtype of U extends String (T)? Would only be true if we used the apparent type of U (T)
 var Derived = (function (_super) {
     __extends(Derived, _super);
@@ -42,12 +41,12 @@ var Derived = (function (_super) {
         _super.apply(this, arguments);
     }
     return Derived;
-})(Base);
+}(Base));
 var Base2 = (function () {
     function Base2() {
     }
     return Base2;
-})();
+}());
 // is U extends String (S) a subtype of String (T)? Apparent type of U is String so it succeeds
 var Derived2 = (function (_super) {
     __extends(Derived2, _super);
@@ -55,4 +54,4 @@ var Derived2 = (function (_super) {
         _super.apply(this, arguments);
     }
     return Derived2;
-})(Base2);
+}(Base2));

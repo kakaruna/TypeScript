@@ -2099,8 +2099,7 @@ module Harness {
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 ///<reference path='..\compiler\io.ts'/>
 ///<reference path='..\compiler\typescript.ts'/>
@@ -2283,7 +2282,7 @@ var Harness;
         Logger.prototype.comment = function (comment) { };
         Logger.prototype.verify = function (test, passed, actual, expected, message) { };
         return Logger;
-    })();
+    }());
     Harness.Logger = Logger;
     // Logger-related functions
     var loggers = [];
@@ -2372,11 +2371,11 @@ var Harness;
                 errorHandlerStack[errorHandlerStack.length - 1](e);
             }
         };
-        // The current stack of Runnable objects
-        Runnable.currentStack = [];
-        Runnable.errorHandlerStack = [];
         return Runnable;
-    })();
+    }());
+    // The current stack of Runnable objects
+    Runnable.currentStack = [];
+    Runnable.errorHandlerStack = [];
     Harness.Runnable = Runnable;
     var TestCase = (function (_super) {
         __extends(TestCase, _super);
@@ -2410,7 +2409,7 @@ var Harness;
             }
         };
         return TestCase;
-    })(Runnable);
+    }(Runnable));
     Harness.TestCase = TestCase;
     var Scenario = (function (_super) {
         __extends(Scenario, _super);
@@ -2465,7 +2464,7 @@ var Harness;
             done();
         };
         return Scenario;
-    })(Runnable);
+    }(Runnable));
     Harness.Scenario = Scenario;
     var Run = (function (_super) {
         __extends(Run, _super);
@@ -2496,7 +2495,7 @@ var Harness;
             emitLog('end');
         };
         return Run;
-    })(Runnable);
+    }(Runnable));
     Harness.Run = Run;
     // Performance test
     var Perf;
@@ -2531,7 +2530,7 @@ var Harness;
                 this.time = (Clock.now() - this.startTime) / Clock.resolution * 1000;
             };
             return Timer;
-        })();
+        }());
         Perf.Timer = Timer;
         var Dataset = (function () {
             function Dataset() {
@@ -2574,7 +2573,7 @@ var Harness;
                 return Math.sqrt(sumOfSquares / this.data.length);
             };
             return Dataset;
-        })();
+        }());
         Perf.Dataset = Dataset;
         // Base benchmark class with some defaults.
         var Benchmark = (function () {
@@ -2593,7 +2592,7 @@ var Harness;
                 this.results[name].add(timing);
             };
             return Benchmark;
-        })();
+        }());
         Perf.Benchmark = Benchmark;
         Perf.benchmarks = [];
         var timeFunction;
@@ -2674,7 +2673,7 @@ var Harness;
                 this.currentLine = "";
             };
             return WriterAggregator;
-        })();
+        }());
         Compiler.WriterAggregator = WriterAggregator;
         /** Mimics having multiple files, later concatenated to a single file. */
         var EmitterIOHost = (function () {
@@ -2710,7 +2709,7 @@ var Harness;
                 return result;
             };
             return EmitterIOHost;
-        })();
+        }());
         Compiler.EmitterIOHost = EmitterIOHost;
         var libFolder = global['WScript'] ? TypeScript.filePath(global['WScript'].ScriptFullName) : (__dirname + '/');
         Compiler.libText = IO ? IO.readFile(libFolder + "lib.d.ts") : '';
@@ -2874,7 +2873,7 @@ var Harness;
                 });
             };
             return Type;
-        })();
+        }());
         Compiler.Type = Type;
         var TypeFactory = (function () {
             function TypeFactory() {
@@ -3015,7 +3014,7 @@ var Harness;
                 });
             };
             return TypeFactory;
-        })();
+        }());
         Compiler.TypeFactory = TypeFactory;
         /** Generates a .d.ts file for the given code
           * @param verifyNoDeclFile pass true when the given code should generate no decl file, false otherwise
@@ -3111,7 +3110,7 @@ var Harness;
                 return false;
             };
             return CompilerResult;
-        })();
+        }());
         Compiler.CompilerResult = CompilerResult;
         // Compiler Error.
         var CompilerError = (function () {
@@ -3125,7 +3124,7 @@ var Harness;
                 return this.file + "(" + this.line + "," + this.column + "): " + this.message;
             };
             return CompilerError;
-        })();
+        }());
         Compiler.CompilerError = CompilerError;
         /** Create a new instance of the compiler with default settings and lib.d.ts, then typecheck */
         function recreate() {
@@ -3453,7 +3452,7 @@ var Harness;
             return new TypeScript.ScriptEditRange(minDistFromStart, entries[0].length - minDistFromEnd, aggDelta);
         };
         return ScriptInfo;
-    })();
+    }());
     Harness.ScriptInfo = ScriptInfo;
     var TypeScriptLS = (function () {
         function TypeScriptLS() {
@@ -3655,7 +3654,7 @@ var Harness;
             return JSON.stringify({ usePullLanguageService: Harness.usePull });
         };
         return TypeScriptLS;
-    })();
+    }());
     Harness.TypeScriptLS = TypeScriptLS;
     // Describe/it definitions
     function describe(description, block) {

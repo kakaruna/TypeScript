@@ -23,8 +23,7 @@ var r3 = r.foo;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var C = (function () {
     function C(a, b) {
@@ -39,7 +38,7 @@ var C = (function () {
         configurable: true
     });
     return C;
-})();
+}());
 var r = C.fn();
 var r2 = r.x;
 var r3 = r.foo;
@@ -49,7 +48,7 @@ var D = (function (_super) {
         _super.apply(this, arguments);
     }
     return D;
-})(C);
+}(C));
 var r = D.fn();
 var r2 = r.x;
 var r3 = r.foo;

@@ -78,15 +78,14 @@ class OtherDerived extends OtherBase {
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 //super call in class constructor with no base type
 var NoBase = (function () {
     function NoBase() {
+        _super.call(this);
         //super call in class member initializer with no base type
         this.p = _super.call(this);
-        _super.call(this);
     }
     //super call in class member function with no base type
     NoBase.prototype.fn = function () {
@@ -120,15 +119,15 @@ var NoBase = (function () {
         enumerable: true,
         configurable: true
     });
-    //super call in static class member initializer with no base type
-    NoBase.k = _super.call(this);
     return NoBase;
-})();
+}());
+//super call in static class member initializer with no base type
+NoBase.k = _super.call(this);
 var Base = (function () {
     function Base() {
     }
     return Base;
-})();
+}());
 var Derived = (function (_super) {
     __extends(Derived, _super);
     //super call with type arguments 
@@ -137,12 +136,12 @@ var Derived = (function (_super) {
         _super.call(this);
     }
     return Derived;
-})(Base);
+}(Base));
 var OtherBase = (function () {
     function OtherBase() {
     }
     return OtherBase;
-})();
+}());
 var OtherDerived = (function (_super) {
     __extends(OtherDerived, _super);
     function OtherDerived() {
@@ -167,4 +166,4 @@ var OtherDerived = (function (_super) {
         configurable: true
     });
     return OtherDerived;
-})(OtherBase);
+}(OtherBase));

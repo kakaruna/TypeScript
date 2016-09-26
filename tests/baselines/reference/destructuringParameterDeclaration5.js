@@ -55,33 +55,32 @@ d3({ y: "world" });
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Class = (function () {
     function Class() {
     }
     return Class;
-})();
+}());
 var SubClass = (function (_super) {
     __extends(SubClass, _super);
     function SubClass() {
         _super.call(this);
     }
     return SubClass;
-})(Class);
+}(Class));
 var D = (function () {
     function D() {
     }
     return D;
-})();
+}());
 var SubD = (function (_super) {
     __extends(SubD, _super);
     function SubD() {
         _super.call(this);
     }
     return SubD;
-})(D);
+}(D));
 function d0(_a) {
     var x = (_a === void 0 ? { x: new Class() } : _a).x;
 }

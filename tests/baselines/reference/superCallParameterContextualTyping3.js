@@ -35,8 +35,7 @@ class C extends CBase<string> {
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var CBase = (function () {
     function CBase(param) {
@@ -44,7 +43,7 @@ var CBase = (function () {
     CBase.prototype.foo = function (param) {
     };
     return CBase;
-})();
+}());
 var C = (function (_super) {
     __extends(C, _super);
     function C() {
@@ -64,4 +63,4 @@ var C = (function (_super) {
         });
     }
     return C;
-})(CBase);
+}(CBase));

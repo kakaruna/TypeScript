@@ -88,8 +88,7 @@ declare module AmbientMod {
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Bar = (function () {
     function Bar(n) {
@@ -98,7 +97,7 @@ var Bar = (function () {
         return x;
     };
     return Bar;
-})();
+}());
 // new-style class
 var Foo = (function (_super) {
     __extends(Foo, _super);
@@ -114,9 +113,9 @@ var Foo = (function (_super) {
     }
     Foo.prototype.bar = function () { return 0; };
     Foo.prototype.boo = function (x) { return x; };
-    Foo.statVal = 0;
     return Foo;
-})(Bar);
+}(Bar));
+Foo.statVal = 0;
 var f = new Foo();
 //class GetSetMonster {
 //  // attack(target) {

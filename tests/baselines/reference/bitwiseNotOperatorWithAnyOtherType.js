@@ -1,4 +1,5 @@
 //// [bitwiseNotOperatorWithAnyOtherType.ts]
+
 // ~ operator on any type
 
 var ANY: any;
@@ -81,7 +82,7 @@ var A = (function () {
         return a;
     };
     return A;
-})();
+}());
 var M;
 (function (M) {
 })(M || (M = {}));

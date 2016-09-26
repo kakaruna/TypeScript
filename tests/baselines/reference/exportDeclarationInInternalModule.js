@@ -22,28 +22,27 @@ var a: Bbb.SomeType;
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Bbb = (function () {
     function Bbb() {
     }
     return Bbb;
-})();
+}());
 var Aaa = (function (_super) {
     __extends(Aaa, _super);
     function Aaa() {
         _super.apply(this, arguments);
     }
     return Aaa;
-})(Bbb);
+}(Bbb));
 var Aaa;
 (function (Aaa) {
     var SomeType = (function () {
         function SomeType() {
         }
         return SomeType;
-    })();
+    }());
     Aaa.SomeType = SomeType;
 })(Aaa || (Aaa = {}));
 var Bbb;
@@ -52,9 +51,8 @@ var Bbb;
         function SomeType() {
         }
         return SomeType;
-    })();
+    }());
     Bbb.SomeType = SomeType;
-    __export(require()); // this line causes the nullref
 })(Bbb || (Bbb = {}));
 var a;
 
